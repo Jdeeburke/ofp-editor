@@ -15,6 +15,7 @@ module.exports = function(o) {
     // authenticated users will also have a request token secret, but it's
     // not used in transactions with the server
     oauth.authenticated = function() {
+        return true;
         return !!(token('oauth_token') && token('oauth_token_secret'));
     };
 
@@ -152,7 +153,7 @@ module.exports = function(o) {
 
         o = _;
 
-        o.url = o.url || 'http://openfloorplan.herokuapp.com';
+        o.url = o.url || 'https://api.taonii.com/floorplan';
         o.landing = o.landing || 'land.html';
 
         // Optional loading and loading-done functions for nice UI feedback.

@@ -1,13 +1,13 @@
 iD.Connection = function(context) {
-
     var event = d3.dispatch('authenticating', 'authenticated', 'auth', 'loading', 'load', 'loaded'),
-        url = 'http://openfloorplan.herokuapp.com',
+        url = 'https://api.taonii.com/floorplan',
         connection = {},
         user = {},
         inflight = {},
         loadedTiles = {},
         oauth = osmAuth({
-            url: 'http://openfloorplan.herokuapp.com',
+            url: 'https://api.taonii.com',
+            x_auth_token: '206e54b4-c89d-48d6-855b-702ec904101d',
             oauth_consumer_key: 'DTi3QlLLQW5tu2ktUq0ULqonaGWSD788AltugjpU',
             oauth_secret: 'MA23mNT9cNIL7ScNu5lUTygqPwP9ZbBpzsrLwovp',
             loading: authenticating,
@@ -246,23 +246,40 @@ iD.Connection = function(context) {
     };
 
     connection.putChangeset = function(changes, comment, imagery_used, callback) {
+
+        var x_auth_token = '206e54b4-c89d-48d6-855b-702ec904101d';
+        
+        var the_content = {
+            'name': 'test',
+            'description': 'test',
+            'xml': JXON.stringify(connection.changesetJXON(connection.changesetTags(comment, imagery_used)))
+        };
+
         oauth.xhr({
-                method: 'PUT',
-                path: '/api/0.6/changeset/create',
-                options: { header: { 'Content-Type': 'text/xml' } },
-                content: JXON.stringify(connection.changesetJXON(connection.changesetTags(comment, imagery_used)))
+                method: 'POST',
+                path: '/floorplan',
+                options: { header: { 
+                    'Content-Type': 'text/xml', 
+                    'X-Auth-Token': x_auth_token,
+                    'X-Client-Type': 'web'
+                }},
+                content: JSON.stringify(the_content)
             }, function(err, changeset_id) {
                 if (err) return callback(err);
                 oauth.xhr({
                     method: 'POST',
-                    path: '/api/0.6/changeset/' + changeset_id + '/upload',
-                    options: { header: { 'Content-Type': 'text/xml' } },
+                    path: '/floorplan/' + changeset_id + '/upload',
+                    options: { header: {
+                        'Content-Type': 'text/xml',
+                        'X-Auth-Token': x_auth_token,
+                        'X-Client-Type': 'web'
+                    }},
                     content: JXON.stringify(connection.osmChangeJXON(user.id, changeset_id, changes))
                 }, function(err) {
                     if (err) return callback(err);
                     oauth.xhr({
                         method: 'PUT',
-                        path: '/api/0.6/changeset/' + changeset_id + '/close'
+                        path: '/floorplan/' + changeset_id + '/close'
                     }, function(err) {
                         callback(err, changeset_id);
                     });
