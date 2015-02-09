@@ -5026,7 +5026,7 @@ d3.xhr = function(url, mimeType, callback) {
   };
 
   xhr.header = function(name, value) {
-    name = (name + "").toLowerCase();
+    name = (name + "");//.toLowerCase();
     if (arguments.length < 2) return headers[name];
     if (value == null) delete headers[name];
     else headers[name] = value + "";

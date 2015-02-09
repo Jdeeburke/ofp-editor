@@ -36,13 +36,19 @@ iD.Connection = function(context) {
     };
 
     connection.loadFromURL = function(url, callback) {
+        
+        console.log('loadFromURL', url );
         function done(dom) {
             return callback(null, parse(dom));
         }
-        return d3.xml(url).get().on('load', done);
+        return d3.xml(url)
+                .header("X-Auth-Token", '206e54b4-c89d-48d6-855b-702ec904101d')
+                .header("X-Client-Type", 'web')
+                .get().on('load', done);
     };
 
     connection.loadEntity = function(id, callback) {
+        console.log('loadEntity', id );
         var type = iD.Entity.id.type(id),
             osmID = iD.Entity.id.toOSM(id);
 
@@ -252,39 +258,68 @@ iD.Connection = function(context) {
         var the_content = {
             'name': 'test',
             'description': 'test',
-            'xml': JXON.stringify(connection.changesetJXON(connection.changesetTags(comment, imagery_used)))
+            'xml': JXON.stringify(connection.osmChangeJXON(1, 1, changes))
+            // 'xml': JXON.stringify(connection.changesetJXON(connection.changesetTags(comment, imagery_used)))
         };
 
-        oauth.xhr({
-                method: 'POST',
-                path: '/floorplan',
-                options: { header: { 
-                    'Content-Type': 'text/xml', 
-                    'X-Auth-Token': x_auth_token,
-                    'X-Client-Type': 'web'
-                }},
-                content: JSON.stringify(the_content)
-            }, function(err, changeset_id) {
-                if (err) return callback(err);
-                oauth.xhr({
-                    method: 'POST',
-                    path: '/floorplan/' + changeset_id + '/upload',
-                    options: { header: {
-                        'Content-Type': 'text/xml',
-                        'X-Auth-Token': x_auth_token,
-                        'X-Client-Type': 'web'
-                    }},
-                    content: JXON.stringify(connection.osmChangeJXON(user.id, changeset_id, changes))
-                }, function(err) {
-                    if (err) return callback(err);
-                    oauth.xhr({
-                        method: 'PUT',
-                        path: '/floorplan/' + changeset_id + '/close'
-                    }, function(err) {
-                        callback(err, changeset_id);
-                    });
-                });
-            });
+        //$.ajax({
+        //    'type': 'POST',
+        //    'url': 'https://api.taonii.com/floorplan',
+        //    'headers': {
+        //        'Content-Type': 'application/json',
+        //        'X-Auth-Token': x_auth_token//,
+        //    },
+        //    'data': ''
+        //});
+
+        $.ajax({
+            type: "POST",
+            url: "https://api.taonii.com/floorplan",
+            headers: {"X-Auth-Token":"206e54b4-c89d-48d6-855b-702ec904101d","X-Client-Type":"web"},
+            data: JSON.stringify(the_content),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                console.log(data);
+            },
+            failure: function(errMsg) {
+                console.log(errMsg);
+            }
+        });
+
+        //oauth.xhr({
+        //    method: 'POST',
+        //    path: '/floorplan',
+        //    options: {
+        //        header: {
+        //            'Content-Type': 'application/json',
+        //            'X-Auth-Token': x_auth_token//,
+        //            //'X-Client-Type': 'web'
+        //        }
+        //    },
+        //    content: ""//JSON.stringify(the_content)
+        //});
+            //}, function(err, changeset_id) {
+            //    if (err) return callback(err);
+            //    oauth.xhr({
+            //        method: 'POST',
+            //        path: '/floorplan/' + changeset_id + '/upload',
+            //        options: { header: {
+            //            'Content-Type': 'text/xml',
+            //            'X-Auth-Token': x_auth_token,
+            //            'X-Client-Type': 'web'
+            //        }},
+            //        content: JXON.stringify(connection.osmChangeJXON(user.id, changeset_id, changes))
+            //    }, function(err) {
+            //        if (err) return callback(err);
+            //        oauth.xhr({
+            //            method: 'PUT',
+            //            path: '/floorplan/' + changeset_id + '/close'
+            //        }, function(err) {
+            //            callback(err, changeset_id);
+            //        });
+            //    });
+            //});
     };
 
     connection.userDetails = function(callback) {
@@ -342,7 +377,8 @@ iD.Connection = function(context) {
                 projection.invert([x, y]),
                 projection.invert([x + ts, y + ts])];
 
-            return url + '/api/0.6/map?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
+            return url + '/xml/1003'//?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
+            // return url + '/api/0.6/map?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
         }
 
         _.filter(inflight, function(v, i) {
