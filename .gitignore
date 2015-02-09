@@ -4,3 +4,4 @@ dist/iD.css
 transifex.auth
 node_modules
 workspace.xml
+.idea/
