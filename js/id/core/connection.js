@@ -1,6 +1,7 @@
 iD.Connection = function(context) {
     var event = d3.dispatch('authenticating', 'authenticated', 'auth', 'loading', 'load', 'loaded'),
         url = 'https://api.taonii.com/floorplan',
+        // readUrl = 'https://api.taonii.com/osmc',
         connection = {},
         user = {},
         inflight = {},
@@ -118,6 +119,7 @@ iD.Connection = function(context) {
         node: function nodeData(obj) {
             var attrs = obj.attributes,
                 tags =  getTags(obj);
+            console.log( attrs );
             initFloor(tags);
             return new iD.Node({
                 id: iD.Entity.id.fromOSM(nodeStr, attrs.id.nodeValue),
@@ -127,7 +129,7 @@ iD.Connection = function(context) {
                 user: attrs.user && attrs.user.nodeValue,
                 uid: attrs.uid && attrs.uid.nodeValue,
                 visible: attrs.visible.nodeValue,
-                timestamp: attrs.timestamp.nodeValue,
+                timestamp: '0000-00-00T00:00:00Z',//attrs.timestamp.nodeValue,
                 tags: tags
             });
         },
@@ -143,7 +145,7 @@ iD.Connection = function(context) {
                 user: attrs.user && attrs.user.nodeValue,
                 uid: attrs.uid && attrs.uid.nodeValue,
                 visible: attrs.visible.nodeValue,
-                timestamp: attrs.timestamp.nodeValue,
+                timestamp: '0000-00-00T00:00:00Z',//attrs.timestamp.nodeValue,
                 tags: tags,
                 nodes: getNodes(obj)
             });
@@ -160,7 +162,7 @@ iD.Connection = function(context) {
                 user: attrs.user && attrs.user.nodeValue,
                 uid: attrs.uid && attrs.uid.nodeValue,
                 visible: attrs.visible.nodeValue,
-                timestamp: attrs.timestamp.nodeValue,
+                timestamp: '0000-00-00T00:00:00Z',//attrs.timestamp.nodeValue,
                 tags: tags,
                 members: getMembers(obj)
             });
@@ -377,7 +379,7 @@ iD.Connection = function(context) {
                 projection.invert([x, y]),
                 projection.invert([x + ts, y + ts])];
 
-            return url + '/xml/1003'//?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
+            return url + '/xml/1012'//?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
             // return url + '/api/0.6/map?bbox=' + [b[0][0], b[1][1], b[1][0], b[0][1]];
         }
 

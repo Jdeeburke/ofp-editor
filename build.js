@@ -108,7 +108,7 @@ generatePresets();
 var core = YAML.load(fs.readFileSync('data/core.yaml', 'utf8'));
 var presets = YAML.load(fs.readFileSync('data/presets.yaml', 'utf8'));
 var en = _.merge(core, presets);
-fs.writeFileSync('dist/locales/en.json', stringify(en.en));
+// fs.writeFileSync('dist/locales/en.json', stringify(en.en));
 
 fs.writeFileSync('data/data.js', 'iD.data = ' + stringify({
     deprecated: r('deprecated.json'),
